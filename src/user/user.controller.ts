@@ -1,32 +1,56 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
+import { User as UserEntity } from 'src/user.decorator';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  // Read all users
-  @Get()
-  async readAll(): Promise<User[]> {
-    return this.userService.readAll();
+  // Create user
+  @Post()
+  @UsePipes(ValidationPipe)
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.userService.createUser(createUserDto);
   }
 
-  // Read one user by id
-  @Get(':id')
-  async readOne(@Param('id') id: number): Promise<User> {
-    return this.userService.readOne(Number(id));
+  // Update user
+  @Patch('/:id')
+  @UsePipes(ValidationPipe)
+  async updateUser(
+    @UserEntity() user: { user_id: number },
+    @Param('user_id', ParseIntPipe) user_id: number,
+    @Body() updateUser: UpdateUserDto,
+  ) {
+    if (user.user_id !== user_id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+    return this.userService.updateUser(user_id, updateUser);
   }
 
-  // login
-  @Post('/login')
-  async login(@Body() user: User): Promise<User> {
-    return this.userService.login(user.email, user.password);
+  // Get a user by id
+  @Get('/:id')
+  async getUserById(@Param('id') id: string): Promise<User> {
+    return this.userService.getUserById(Number(id));
   }
 
-  // login with refresh token
-  @Post('/login/refresh')
-  async loginRefresh(@Body() body): Promise<User> {
-    return this.userService.loginRefresh(body.refreshToken);
+  // Get a user by email
+  @Get('/:email')
+  async getUserByEmail(@Param('email') email: string): Promise<User> {
+    return this.userService.getUserByEmail(email);
   }
 }

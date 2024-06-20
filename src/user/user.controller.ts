@@ -3,48 +3,49 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
-  UnauthorizedException,
   UsePipes,
   ValidationPipe,
-  Logger,
+  UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './user.entity';
-import { GetUser as UserEntity } from 'src/user.decorator';
+import { GetUser } from 'src/user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
+@UseGuards(AuthGuard('jwt'))
 export class UserController {
   constructor(private userService: UserService) {}
 
-  // Update user
-  @Patch('id/:user_id')
+  @Get('profile')
+  async getProfile(@GetUser() user: User): Promise<User> {
+    return user;
+  }
+
+  @Patch('profile')
   @UsePipes(ValidationPipe)
-  async updateUser(
-    @UserEntity() user: { user_id: number } | undefined, // 문제 있음
-    @Param('user_id', ParseIntPipe) user_id: number,
-    @Body() updateUser: UpdateUserDto,
-  ) {
-    if (user.user_id !== user_id) {
-      throw new UnauthorizedException();
-    }
-    Logger.log(updateUser);
-    return this.userService.updateUser(user_id, updateUser);
-  }
-
-  // Get a user by id
-  @Get('/id/:user_id')
-  async getUserById(
-    @Param('user_id', ParseIntPipe) user_id: number,
+  async updateProfile(
+    @GetUser() user: User,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
-    return this.userService.getUserById(user_id);
+    if (updateUserDto.email) {
+      throw new BadRequestException('Email update is not allowed');
+    }
+    return await this.userService.updateProfile(user.user_id, updateUserDto);
   }
 
-  // Get a user by email
-  @Get('/email/:email')
-  async getUserByEmail(@Param('email') email: string): Promise<User> {
-    return this.userService.getUserByEmail(email);
+  @Get(':user_id')
+  async getUserProfile(
+    @Param('user_id') user_id: number,
+  ): Promise<Partial<User>> {
+    // if (user.user_id !== user_id) {
+    //   throw new UnauthorizedException(
+    //     'You are not authorized to view this profile',
+    //   );
+    // }
+    return await this.userService.findUserById(user_id);
   }
 }

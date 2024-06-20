@@ -1,9 +1,9 @@
 import { User } from './user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { AuthCredentialsDto } from 'src/auth/dto/auth-credential.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -11,29 +11,45 @@ export class UserRepository extends Repository<User> {
     super(User, dataSource.createEntityManager());
   }
 
-  async createUser(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    const { email, password } = authCredentialsDto;
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    const { email, password, last_name, first_name, profile } = createUserDto;
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
-    const user = this.create({ email, password: hashedPassword });
+    const user = this.create({
+      email,
+      password: hashedPassword,
+      last_name,
+      first_name,
+      profile,
+    });
     try {
       await this.save(user);
     } catch (error) {
       console.log(error);
     }
+    return user;
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne({
       where: { user_id: id },
     });
-    if (!user) {
-      throw new NotFoundException();
+    if (updateUserDto.password) {
+      const salt = await bcrypt.genSalt();
+      const hashedPassword = await bcrypt.hash(user.password, salt);
+      user.password = hashedPassword;
     }
-    Object.keys(updateUserDto).forEach((key) => {
-      user[key] = updateUserDto[key];
-    });
-    return this.save(user);
+    if (updateUserDto.first_name) {
+      user.first_name = updateUserDto.first_name;
+    }
+    if (updateUserDto.last_name) {
+      user.last_name = updateUserDto.last_name;
+    }
+    if (updateUserDto.profile) {
+      user.profile = updateUserDto.profile;
+    }
+    await this.save(user);
+    return user;
   }
 
   async getUserByEmail(email: string): Promise<User> {
@@ -43,10 +59,17 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
-  async getUserById(id: number): Promise<User> {
+  async getUserById(id: number): Promise<Partial<User>> {
     const user = await this.findOne({
       where: { user_id: id },
     });
-    return user;
+
+    const safeUser = {
+      last_name: user.last_name,
+      first_name: user.first_name,
+      profile: user.profile,
+    };
+
+    return safeUser;
   }
 }

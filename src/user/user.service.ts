@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
@@ -11,20 +11,32 @@ export class UserService {
   ) {}
 
   // Update user
-  async updateUser(user_id: number, user: UpdateUserDto): Promise<User> {
+  async updateProfile(user_id: number, user: UpdateUserDto): Promise<User> {
     const updatedUser = await this.userRepository.updateUser(user_id, user);
     return updatedUser;
   }
 
-  // Read one user by id
-  async getUserById(id: number): Promise<User> {
-    const user = await this.userRepository.getUserById(id);
+  async findUserById(user_id: number): Promise<Partial<User>> {
+    const user = await this.userRepository.getUserById(user_id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return user;
   }
 
-  // Read user by email
-  async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.getUserByEmail(email);
-    return user;
-  }
+  // // Read all users
+  // async getAllUsers(id: number): Promise<User[]> {
+  //   const self = await this.userRepository.findOne({
+  //     where: { user_id: id },
+  //   });
+  //   const users = await this.userRepository.find();
+  //   users.forEach((user) => {
+  //     if (user.email !== self.email) {
+  //       delete user.email;
+  //     }
+  //   });
+  //   return users;
+  // }
 }

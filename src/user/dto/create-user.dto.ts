@@ -10,11 +10,11 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   last_name: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   first_name: string;
 
   @IsString()

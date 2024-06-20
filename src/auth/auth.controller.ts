@@ -2,15 +2,13 @@ import {
   Body,
   Controller,
   Post,
-  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { GetUser } from '../user.decorator';
-import { User } from '../user/user.entity';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { User } from 'src/user/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -19,8 +17,8 @@ export class AuthController {
   // Sign up endpoint
   @Post('/signup')
   @UsePipes(ValidationPipe)
-  async signUp(@Body() authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    await this.authService.signUp(authCredentialsDto);
+  async signUp(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return await this.authService.signUp(createUserDto);
   }
 
   // Sign in endpoint
@@ -28,14 +26,7 @@ export class AuthController {
   @UsePipes(ValidationPipe)
   async signIn(
     @Body() authCredentialsDto: AuthCredentialsDto,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return await this.authService.signIn(authCredentialsDto);
-  }
-
-  // Test endpoint protected with JWT authentication
-  @Post('/test')
-  @UseGuards(AuthGuard())
-  test(@GetUser() user: User) {
-    console.log('Authenticated user:', user);
   }
 }

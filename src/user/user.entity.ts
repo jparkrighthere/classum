@@ -11,13 +11,13 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: null, nullable: true })
+  @Column()
   last_name: string;
 
-  @Column({ default: null, nullable: true })
+  @Column()
   first_name: string;
 
-  @Column({ default: null, nullable: true })
+  @Column()
   profile: string;
 
   @Column({ default: true })

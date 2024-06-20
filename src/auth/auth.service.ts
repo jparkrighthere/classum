@@ -19,10 +19,11 @@ export class AuthService {
 
   // Sign up and create user
   async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    console.log(authCredentialsDto);
+    // console.log(authCredentialsDto);
     const user = await this.userRepository.getUserByEmail(
       authCredentialsDto.email,
     );
+    // console.log(user);
     if (user !== null) {
       throw new ConflictException('User already exists');
     } else {

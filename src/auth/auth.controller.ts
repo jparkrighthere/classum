@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Post,
   UseGuards,
@@ -18,7 +19,7 @@ export class AuthController {
   // Sign up endpoint
   @Post('/signup')
   @UsePipes(ValidationPipe)
-  async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async signUp(@Body() authCredentialsDto: AuthCredentialsDto): Promise<void> {
     await this.authService.signUp(authCredentialsDto);
   }
 
@@ -26,7 +27,7 @@ export class AuthController {
   @Post('/signin')
   @UsePipes(ValidationPipe)
   async signIn(
-    authCredentialsDto: AuthCredentialsDto,
+    @Body() authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ accessToken: string }> {
     return await this.authService.signIn(authCredentialsDto);
   }

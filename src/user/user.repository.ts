@@ -1,12 +1,7 @@
 import { User } from './user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { AuthCredentialsDto } from 'src/auth/dto/auth-credential.dto';
 
@@ -24,11 +19,7 @@ export class UserRepository extends Repository<User> {
     try {
       await this.save(user);
     } catch (error) {
-      if (error.code === '23505') {
-        throw new ConflictException('Existing email');
-      } else {
-        throw new InternalServerErrorException();
-      }
+      console.log(error);
     }
   }
 

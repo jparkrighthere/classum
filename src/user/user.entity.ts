@@ -17,8 +17,8 @@ export class User {
   @Column()
   first_name: string;
 
-  @Column()
-  profile: Buffer;
+  @Column({ default: null, nullable: true })
+  profile: string;
 
   @Column({ default: true })
   isActive: boolean;

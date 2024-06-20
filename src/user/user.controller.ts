@@ -2,12 +2,11 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -22,34 +21,36 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   // Create user
-  @Post()
+  @Post('/create')
   @UsePipes(ValidationPipe)
   async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.createUser(createUserDto);
   }
 
   // Update user
-  @Patch('/:id')
+  @Patch('id/:user_id')
   @UsePipes(ValidationPipe)
   async updateUser(
-    @UserEntity() user: { user_id: number },
+    @UserEntity() user: { user_id: number } | undefined,
     @Param('user_id', ParseIntPipe) user_id: number,
     @Body() updateUser: UpdateUserDto,
   ) {
     if (user.user_id !== user_id) {
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException();
     }
     return this.userService.updateUser(user_id, updateUser);
   }
 
   // Get a user by id
-  @Get('/:id')
-  async getUserById(@Param('id') id: string): Promise<User> {
-    return this.userService.getUserById(Number(id));
+  @Get('/id/:user_id')
+  async getUserById(
+    @Param('user_id', ParseIntPipe) user_id: number,
+  ): Promise<User> {
+    return this.userService.getUserById(user_id);
   }
 
   // Get a user by email
-  @Get('/:email')
+  @Get('/email/:email')
   async getUserByEmail(@Param('email') email: string): Promise<User> {
     return this.userService.getUserByEmail(email);
   }

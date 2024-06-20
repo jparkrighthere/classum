@@ -1,24 +1,21 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { UserRepository, UserRepositoryType } from './user.repository';
-import { DataSource } from 'typeorm';
+import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  private userRepository: UserRepositoryType;
-
-  constructor(@InjectDataSource() private dataSource: DataSource) {
-    this.userRepository = UserRepository(this.dataSource);
-  }
+  constructor(
+    @InjectRepository(UserRepository) private userRepository: UserRepository,
+  ) {}
 
   // Create user
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     let user = await this.userRepository.getUserByEmail(createUserDto.email);
-    if (user) {
-      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+    if (user !== null) {
+      throw new ConflictException('User already exists');
     } else {
       user = await this.userRepository.createUser(createUserDto);
     }

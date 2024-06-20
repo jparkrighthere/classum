@@ -19,5 +19,5 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  profile: Buffer;
+  profile: string;
 }

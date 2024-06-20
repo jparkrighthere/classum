@@ -1,0 +1,19 @@
+server:
+  port: 3000
+
+db:
+  type: 'mysql'
+  port: 3306
+  host: 'localhost'
+  username: 'root'
+
+jwt:
+  access:
+    expiresIn: 3600
+    secret: 'SceretSauce'
+  refresh:
+    expiresIn: 2592000
+    secret: 'Refreshments'
+
+file:
+  path: 'public'

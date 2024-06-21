@@ -6,6 +6,8 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './logger.middleware';
+import { SpaceController } from './space/space.controller';
+import { SpaceModule } from './space/space.module';
 
 @Module({
   imports: [
@@ -25,8 +27,9 @@ import { LoggerMiddleware } from './logger.middleware';
     }),
     UserModule,
     AuthModule,
+    SpaceModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, SpaceController],
   providers: [AppService],
 })
 export class AppModule implements NestModule {

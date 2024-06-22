@@ -8,6 +8,15 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './logger.middleware';
 import { SpaceController } from './space/space.controller';
 import { SpaceModule } from './space/space.module';
+import { SpaceRoleController } from './spaceRole/spaceRole.controller';
+import { SpaceRoleModule } from './spaceRole/spaceRole.module';
+import { UserSpaceModule } from './userSpace/userSpace.module';
+import { UserController } from './user/user.controller';
+import { AuthController } from './auth/auth.controller';
+import { User } from './user/user.entity';
+import { Space } from './space/space.entity';
+import { SpaceRole } from './spaceRole/spaceRole.entity';
+import { UserSpace } from './userSpace/userSpace.entity';
 
 @Module({
   imports: [
@@ -23,13 +32,21 @@ import { SpaceModule } from './space/space.module';
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME,
       synchronize: process.env.DB_SYNC === 'true',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [User, Space, SpaceRole, UserSpace],
     }),
     UserModule,
     AuthModule,
     SpaceModule,
+    SpaceRoleModule,
+    UserSpaceModule,
   ],
-  controllers: [AppController, SpaceController],
+  controllers: [
+    AppController,
+    SpaceController,
+    SpaceRoleController,
+    UserController,
+    AuthController,
+  ],
   providers: [AppService],
 })
 export class AppModule implements NestModule {

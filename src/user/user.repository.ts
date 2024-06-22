@@ -1,7 +1,7 @@
 import { User } from './user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 
@@ -63,6 +63,10 @@ export class UserRepository extends Repository<User> {
     const user = await this.findOne({
       where: { user_id: id },
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     const safeUser = {
       last_name: user.last_name,

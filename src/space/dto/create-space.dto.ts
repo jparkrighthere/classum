@@ -1,24 +1,29 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { CreateSpaceRoleDto } from 'src/spaceRole/dto/create-spaceRole.dto';
 
-export class CreatespaceDto {
+export class CreateSpaceDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   logo: string;
 
   @IsArray()
   @IsNotEmpty()
-  @Type(() => CreateSpaceRoleDto)
   @ValidateNested({ each: true })
-  spaceRoles: CreateSpaceRoleDto[];
+  spaceRoles: CreateSpaceRoleDto[]; // 공간 내의 역할들
 
   @ValidateNested()
   @Type(() => CreateSpaceRoleDto)
   @IsNotEmpty()
-  selectedSpaceRole: CreateSpaceRoleDto;
+  ownerSpaceRole: CreateSpaceRoleDto; // 관리자 역할
 }

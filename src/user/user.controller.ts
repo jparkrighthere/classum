@@ -37,7 +37,7 @@ export class UserController {
     return await this.userService.updateProfile(user.user_id, updateUserDto);
   }
 
-  @Get(':user_id')
+  @Get('profile/:user_id')
   async getUserProfile(
     @Param('user_id') user_id: number,
   ): Promise<Partial<User>> {

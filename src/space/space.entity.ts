@@ -1,11 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  DeleteDateColumn,
+} from 'typeorm';
 import { SpaceRole } from '../spaceRole/spaceRole.entity';
-import { UserSpace } from 'src/user/userSpace.entity';
+import { UserSpace } from '../userSpace/userSpace.entity';
 
 @Entity()
 export class Space {
   @PrimaryGeneratedColumn()
-  id: number;
+  space_id: number;
 
   @Column()
   name: string;
@@ -24,4 +30,7 @@ export class Space {
 
   @Column({ length: 8 })
   adminAccessCode: string; // 관리자 접근 코드
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

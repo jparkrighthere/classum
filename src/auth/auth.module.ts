@@ -6,6 +6,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { UserRepository } from '../user/user.repository';
 import { UserService } from '../user/user.service';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -14,9 +15,10 @@ import { PassportModule } from '@nestjs/passport';
       secret: 'classum-jeonghyeon',
       signOptions: { expiresIn: '1h' },
     }),
+    TypeOrmModule.forFeature([UserRepository]),
   ],
   providers: [AuthService, JwtStrategy, UserRepository, UserService],
   controllers: [AuthController],
-  exports: [JwtStrategy, PassportModule],
+  exports: [JwtStrategy, PassportModule, AuthService],
 })
 export class AuthModule {}

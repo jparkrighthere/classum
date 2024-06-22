@@ -28,12 +28,13 @@ export class SpaceController {
     @Body() createSpaceDto: CreateSpaceDto,
     @GetUser() user: User,
   ): Promise<Space> {
-    return this.spaceService.addSpace(createSpaceDto, user);
+    return await this.spaceService.addSpace(createSpaceDto, user);
   }
 
   @Get()
-  async getSpaces(@GetUser() user: User): Promise<Space[]> {
-    return this.spaceService.getSpaces(user);
+  async getSpaces(@GetUser() user: User): Promise<string[]> {
+    const spaceInfo = await this.spaceService.getSpaces(user);
+    return spaceInfo.map((space) => space.name);
   }
 
   @Post('/join')
@@ -42,11 +43,14 @@ export class SpaceController {
     @Body() joinSpaceDto: JoinSpaceDto,
     @GetUser() user: User,
   ): Promise<UserSpace> {
-    return this.spaceService.joinSpace(joinSpaceDto, user);
+    return await this.spaceService.joinSpace(joinSpaceDto, user);
   }
 
   @Delete()
-  async deleteSpace(@Body() space_id: number, @GetUser() user: User) {
-    return this.spaceService.deleteSpace(space_id, user);
+  async deleteSpace(
+    @Body('space_id') space_id: number,
+    @GetUser() user: User,
+  ): Promise<Space> {
+    return await this.spaceService.deleteSpace(space_id, user);
   }
 }

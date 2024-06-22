@@ -15,8 +15,12 @@ export class SpaceRepository extends Repository<Space> {
 
   async findSpaces(user: User): Promise<Space[]> {
     return this.find({
-      where: { userSpaces: { user } },
+      where: { userSpaces: { user }, deletedAt: null },
       relations: ['spaceRoles'],
     });
+  }
+
+  async getAllSpaces(): Promise<Space[]> {
+    return this.find();
   }
 }

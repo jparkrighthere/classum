@@ -22,16 +22,20 @@ export class SpaceRole {
   @Column({
     type: 'enum',
     enum: Role,
-    default: Role.USER, // ?
   })
   role: Role;
 
-  @ManyToOne(() => Space, (space) => space.spaceRoles)
+  @ManyToOne(() => Space, (space) => space.spaceRoles, {
+    eager: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   space: Space;
 
   @OneToMany(() => UserSpace, (userSpace) => userSpace.spaceRole, {
     lazy: true,
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
   })
   userSpaces: UserSpace[];
 

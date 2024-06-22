@@ -19,10 +19,18 @@ export class Space {
   @Column({ nullable: true })
   logo: string;
 
-  @OneToMany(() => SpaceRole, (spaceRole) => spaceRole.space, { cascade: true })
+  @OneToMany(() => SpaceRole, (spaceRole) => spaceRole.space, {
+    eager: true,
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
+  })
   spaceRoles: SpaceRole[]; // 공간 내의 역할들
 
-  @OneToMany(() => UserSpace, (userSpace) => userSpace.space)
+  @OneToMany(() => UserSpace, (userSpace) => userSpace.space, {
+    eager: true,
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
+  })
   userSpaces: UserSpace[]; // 사용자-공간 관계
 
   @Column({ length: 8 })

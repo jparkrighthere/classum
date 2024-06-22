@@ -20,7 +20,7 @@ import { UserSpaceRepository } from 'src/userSpace/userSpace.repository';
     UserSpaceModule,
   ],
   controllers: [SpaceController],
-  providers: [SpaceService, SpaceRepository],
+  providers: [SpaceService, SpaceRepository, UserSpaceRepository],
   exports: [SpaceService],
 })
 export class SpaceModule {}

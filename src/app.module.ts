@@ -13,26 +13,29 @@ import { SpaceRoleModule } from './spaceRole/spaceRole.module';
 import { UserSpaceModule } from './userSpace/userSpace.module';
 import { UserController } from './user/user.controller';
 import { AuthController } from './auth/auth.controller';
-import { User } from './user/user.entity';
-import { Space } from './space/space.entity';
-import { SpaceRole } from './spaceRole/spaceRole.entity';
-import { UserSpace } from './userSpace/userSpace.entity';
+import { Space } from 'src/space/space.entity';
+import { SpaceRole } from 'src/spaceRole/spaceRole.entity';
+import { User } from 'src/user/user.entity';
+import { UserSpace } from 'src/userSpace/userSpace.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
       isGlobal: true,
+      envFilePath:
+        process.env.NODE_ENV == 'development'
+          ? '.env.development'
+          : '.env.production',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD || '',
+      password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: process.env.DB_SYNC === 'true',
       entities: [User, Space, SpaceRole, UserSpace],
+      synchronize: process.env.DB_SYNC === 'true',
     }),
     UserModule,
     AuthModule,
@@ -56,9 +59,3 @@ export class AppModule implements NestModule {
     }
   }
 }
-// console.log('DB_HOST:', process.env.DB_HOST);
-// console.log('DB_PORT:', process.env.DB_PORT);
-// console.log('DB_USERNAME:', process.env.DB_USERNAME);
-// console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
-// console.log('DB_NAME:', process.env.DB_NAME);
-// console.log('DB_SYNC:', process.env.DB_SYNC);

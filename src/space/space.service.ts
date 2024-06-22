@@ -105,11 +105,12 @@ export class SpaceService {
 
     // check if access code is for user or admin
     if (accessCode === space.userAccessCode) {
-      const newUserSpace = this.userSpaceService.connectUserSpace(
+      const newUserSpace = await this.userSpaceService.connectUserSpace(
         user,
         space,
         space.spaceRoles.find((spaceRole) => spaceRole.role === Role.USER),
       );
+      console.log(newUserSpace);
       return newUserSpace;
     } else if (accessCode === space.adminAccessCode) {
       const newUserSpace = this.userSpaceService.connectUserSpace(
@@ -123,12 +124,12 @@ export class SpaceService {
     }
   }
 
-  async deleteSpace(space_id: number, user: User): Promise<void> {
+  async deleteSpace(space_id: number, user: User): Promise<Space> {
+    // check if space exists
     const space = await this.spaceRepository.getSpaceById(space_id);
     if (!space) {
       throw new NotFoundException('Space not found');
     }
-
     if (space.deletedAt) {
       throw new NotFoundException('Space already deleted');
     }
@@ -138,11 +139,9 @@ export class SpaceService {
       user.user_id,
       space_id,
     );
-
     if (!userSpace) {
       throw new NotFoundException('User not in this space');
     }
-
     if (userSpace.deletedAt) {
       throw new NotFoundException('User already deleted from this space');
     }
@@ -151,19 +150,15 @@ export class SpaceService {
     const ownerSpaceRole = space.spaceRoles.find(
       (spaceRole) => spaceRole.role === Role.OWNER,
     );
-
     if (userSpace.spaceRole.role_id !== ownerSpaceRole.role_id) {
       throw new BadRequestException('User is not the owner of the space');
     }
 
-    // Delete the space roles and UserSpaces entities first
-    for (const spaceRole of space.spaceRoles) {
-      await this.spaceRoleRepository.softDelete(spaceRole.role_id);
-    }
+    // Delete userSpaces entity first
     for (const userSpace of space.userSpaces) {
-      await this.userSpaceRepository.softDelete(userSpace.id);
+      await this.userSpaceRepository.softRemove(userSpace);
     }
 
-    await this.spaceRepository.softDelete(space_id);
+    return await this.spaceRepository.softRemove(space);
   }
 }

@@ -17,7 +17,12 @@ import { UserSpaceRepository } from 'src/userSpace/userSpace.repository';
     ]),
     UserSpaceModule,
   ],
-  providers: [SpaceRoleService, SpaceRoleRepository],
+  providers: [
+    SpaceRoleService,
+    SpaceRoleRepository,
+    SpaceRepository,
+    UserSpaceRepository,
+  ],
   controllers: [SpaceRoleController],
   exports: [SpaceRoleService],
 })

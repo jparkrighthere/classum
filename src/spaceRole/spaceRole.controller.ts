@@ -17,7 +17,7 @@ import { UpdateSpaceRoleDto } from './dto/update-spaceRole.dto';
 import { GetUser } from 'src/user.decorator';
 import { User } from 'src/user/user.entity';
 
-@Controller('spaceRole')
+@Controller('spacerole')
 @UseGuards(AuthGuard('jwt'))
 export class SpaceRoleController {
   constructor(private spaceRoleService: SpaceRoleService) {}
@@ -26,7 +26,7 @@ export class SpaceRoleController {
   @UsePipes(ValidationPipe)
   async addSpaceRole(
     @Body() createSpaceRoleDto: CreateSpaceRoleDto,
-    @Body() space_id: number,
+    @Body('space_id') space_id: number,//이걸 createSpaceRoleDTO에 넣어야함?
   ) {
     return await this.spaceRoleService.addSpaceRole(
       createSpaceRoleDto,

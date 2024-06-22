@@ -37,7 +37,7 @@ export class SpaceRoleRepository extends Repository<SpaceRole> {
     if (!spaceRoleToDelete) {
       throw new NotFoundException('SpaceRole not found');
     }
-    await this.softDelete(spaceRoleToDelete.role_id);
+    await this.softRemove(spaceRoleToDelete);
   }
 
   async getSpaceRoleById(id: number): Promise<SpaceRole> {
@@ -50,6 +50,12 @@ export class SpaceRoleRepository extends Repository<SpaceRole> {
     // }
 
     return spaceRole;
+  }
+
+  async getAllSpaceRoles(space_id: number): Promise<SpaceRole[]> {
+    return await this.find({
+      where: { space: { space_id } },
+    });
   }
 
   async getSpaceRoleByNameRoleSpace(

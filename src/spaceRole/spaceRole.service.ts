@@ -31,9 +31,9 @@ export class SpaceRoleService {
       throw new NotFoundException('Space not found');
     }
 
-    const { role, name } = createSpaceRoleDto;
+    const { name } = createSpaceRoleDto;
     let spaceRole = space.spaceRoles.find(
-      (spaceRole) => spaceRole.role === role && spaceRole.name === name,
+      (spaceRole) => spaceRole.name === name,
     );
     if (spaceRole) {
       throw new ConflictException(

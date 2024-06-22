@@ -1,16 +1,22 @@
 // import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-// import * as config from 'config';
-
-// const dbConfig: any = config.get('db');
+// // import { Space } from 'src/space/space.entity';
+// // import { SpaceRole } from 'src/spaceRole/spaceRole.entity';
+// // import { User } from 'src/user/user.entity';
+// // import { UserSpace } from 'src/userSpace/userSpace.entity';
 
 // export const typeORMConfig: TypeOrmModuleOptions = {
-//   type: dbConfig.type,
-//   host: process.env.RDS_HOST || dbConfig.host,
-//   port: process.env.RDS_PORT || dbConfig.port,
-//   username: process.env.RDS_USERNAME || dbConfig.username,
-//   password: process.env.RDS_PASSWORD || dbConfig.password,
-//   database: process.env.RDS_DATABASE || dbConfig.database,
-//   entities: [__dirname + '/../**/*.entity.{js, ts}'],
-//   synchronize: dbConfig.synchronize,
-//   logging: dbConfig.logging,
+//   type: 'mysql',
+//   host: process.env.DB_HOST,
+//   port: +process.env.DB_PORT,
+//   username: process.env.DB_USERNAME,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+//   entities: ['dist/**/*.entity.ts'],
+//   synchronize: process.env.DB_SYNC === 'true',
 // };
+// console.log('DB_HOST:', process.env.DB_HOST);
+// console.log('DB_PORT:', process.env.DB_PORT);
+// console.log('DB_USERNAME:', process.env.DB_USERNAME);
+// console.log('DB_PASSWORD:', process.env.DB_PASSWORD);
+// console.log('DB_NAME:', process.env.DB_NAME);
+// console.log('DB_SYNC:', process.env.DB_SYNC);

@@ -14,15 +14,21 @@ export class UserSpace {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.userSpaces)
+  @ManyToOne(() => User, (user) => user.userSpaces, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => Space, (space) => space.userSpaces)
+  @ManyToOne(() => Space, (space) => space.userSpaces, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   space: Space;
 
-  @ManyToOne(() => SpaceRole, (spaceRole) => spaceRole.userSpaces)
+  @ManyToOne(() => SpaceRole, (spaceRole) => spaceRole.userSpaces, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   spaceRole: SpaceRole;
 

@@ -17,6 +17,11 @@ import { Space } from 'src/space/space.entity';
 import { SpaceRole } from 'src/spaceRole/spaceRole.entity';
 import { User } from 'src/user/user.entity';
 import { UserSpace } from 'src/userSpace/userSpace.entity';
+import { PostController } from './post/post.controller';
+import { PostModule } from './post/post.module';
+import { ChatController } from './chat/chat.controller';
+import { ChatModule } from './chat/chat.module';
+import { Post } from './post/post.entity';
 
 @Module({
   imports: [
@@ -34,7 +39,7 @@ import { UserSpace } from 'src/userSpace/userSpace.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Space, SpaceRole, UserSpace],
+      entities: [User, Space, SpaceRole, UserSpace, Post],
       synchronize: process.env.DB_SYNC === 'true',
     }),
     UserModule,
@@ -42,6 +47,8 @@ import { UserSpace } from 'src/userSpace/userSpace.entity';
     SpaceModule,
     SpaceRoleModule,
     UserSpaceModule,
+    PostModule,
+    ChatModule,
   ],
   controllers: [
     AppController,
@@ -49,6 +56,8 @@ import { UserSpace } from 'src/userSpace/userSpace.entity';
     SpaceRoleController,
     UserController,
     AuthController,
+    PostController,
+    ChatController,
   ],
   providers: [AppService],
 })

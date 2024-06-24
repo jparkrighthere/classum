@@ -1,0 +1,4 @@
+export enum PostType {
+  ANNOUNCEMENT = 'ANNOUNCEMENT',
+  QUESTION = 'QUESTION',
+}

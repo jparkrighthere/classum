@@ -15,12 +15,16 @@ export class SpaceRepository extends Repository<Space> {
 
   async findSpaces(user: User): Promise<Space[]> {
     return this.find({
-      where: { userSpaces: { user }, deletedAt: null },
+      where: { userSpaces: { user } },
       relations: ['spaceRoles'],
     });
   }
 
   async getAllSpaces(): Promise<Space[]> {
     return this.find();
+  }
+
+  async getSpaceByName(name: string): Promise<Space> {
+    return this.findOne({ where: { name } });
   }
 }

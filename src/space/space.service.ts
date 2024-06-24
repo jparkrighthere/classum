@@ -6,7 +6,7 @@ import {
 import { SpaceRepository } from './space.repository';
 import { Space } from './space.entity';
 import { CreateSpaceDto } from './dto/create-space.dto';
-import { SpaceRoleService } from 'src/spaceRole/spaceRole.service';
+import { SpaceRoleService } from '../spaceRole/spaceRole.service';
 import { User } from 'src/user/user.entity';
 import { UserSpaceService } from 'src/userSpace/userSpace.service';
 import { Role } from 'src/spaceRole/enum/spaceRole.enum';
@@ -23,25 +23,21 @@ export class SpaceService {
 
   async addSpace(createSpaceDto: CreateSpaceDto, user: User): Promise<Space> {
     const { name, logo, spaceRoles, ownerSpaceRole } = createSpaceDto;
-
+    // check if the space name is already taken
+    const spaceExists = await this.spaceRepository.getSpaceByName(name);
+    if (spaceExists) {
+      throw new BadRequestException('Space name already taken');
+    }
     const userAccessCode = this.generatedAccessCode(8);
     const adminAccessCode = this.generatedAccessCode(8);
-    console.log(createSpaceDto);
-
     // Add space roles in the database
     const savedSpaceRoles =
       await this.spaceRoleService.addSpaceRoles(spaceRoles);
-
-    console.log(savedSpaceRoles);
-
     // Find the owner space role
     const userSpaceRole = savedSpaceRoles.find(
       (spaceRole) =>
         spaceRole.name === ownerSpaceRole.name && spaceRole.role === Role.OWNER,
     );
-
-    console.log(userSpaceRole);
-
     // Create a new space
     const space = this.spaceRepository.create({
       name,
@@ -50,17 +46,13 @@ export class SpaceService {
       adminAccessCode,
       spaceRoles: savedSpaceRoles,
     });
-
-    console.log(space);
-
     // Save the space in the database
     const savedSpace = await this.spaceRepository.save(space);
-    const connection = await this.userSpaceService.connectUserSpace(
+    await this.userSpaceService.connectUserSpace(
       user,
       savedSpace,
       userSpaceRole,
     );
-    console.log(connection);
     return savedSpace;
   }
 
@@ -99,7 +91,7 @@ export class SpaceService {
       space_id,
     );
 
-    if (userSpace && userSpace.deletedAt == null) {
+    if (userSpace) {
       throw new BadRequestException('User already in this space');
     }
 
@@ -110,7 +102,6 @@ export class SpaceService {
         space,
         space.spaceRoles.find((spaceRole) => spaceRole.role === Role.USER),
       );
-      console.log(newUserSpace);
       return newUserSpace;
     } else if (accessCode === space.adminAccessCode) {
       const newUserSpace = this.userSpaceService.connectUserSpace(
@@ -130,9 +121,6 @@ export class SpaceService {
     if (!space) {
       throw new NotFoundException('Space not found');
     }
-    if (space.deletedAt) {
-      throw new NotFoundException('Space already deleted');
-    }
 
     // check if user is in the space
     const userSpace = await this.userSpaceService.findUserSpace(
@@ -141,9 +129,6 @@ export class SpaceService {
     );
     if (!userSpace) {
       throw new NotFoundException('User not in this space');
-    }
-    if (userSpace.deletedAt) {
-      throw new NotFoundException('User already deleted from this space');
     }
 
     // check if user is the owner of the space

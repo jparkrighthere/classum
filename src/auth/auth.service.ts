@@ -19,9 +19,7 @@ export class AuthService {
 
   // Sign up and create user
   async signUp(createUserDto: CreateUserDto): Promise<User> {
-    console.log(createUserDto);
     let user = await this.userRepository.getUserByEmail(createUserDto.email);
-    console.log(user);
     if (user !== null) {
       throw new ConflictException('User already exists');
     } else {
@@ -39,7 +37,7 @@ export class AuthService {
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const payload = { email };
-      const accessToken = await this.jwtService.sign(payload);
+      const accessToken = this.jwtService.sign(payload);
       const refreshToken = this.jwtService.sign(payload, { expiresIn: '30d' });
 
       return { accessToken, refreshToken };

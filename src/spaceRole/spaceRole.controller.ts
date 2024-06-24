@@ -16,6 +16,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/user.decorator';
 import { User } from 'src/user/user.entity';
 import { SpaceRole } from './spaceRole.entity';
+import { Role } from './enum/spaceRole.enum';
 
 @Controller('spacerole')
 @UseGuards(AuthGuard('jwt'))
@@ -27,8 +28,12 @@ export class SpaceRoleController {
   async addSpaceRole(
     @Body() createSpaceRoleDto: CreateSpaceRoleDto,
     @GetUser() user: User,
-  ) {
-    return await this.spaceRoleService.addSpaceRole(createSpaceRoleDto, user);
+  ): Promise<{ role_id: number }> {
+    const spaceRole = await this.spaceRoleService.addSpaceRole(
+      createSpaceRoleDto,
+      user,
+    );
+    return { role_id: spaceRole.role_id };
   }
 
   @Delete()
@@ -36,11 +41,8 @@ export class SpaceRoleController {
   async deleteSpaceRole(
     @Body() createSpaceRoleDto: CreateSpaceRoleDto,
     @GetUser() user: User,
-  ) {
-    return await this.spaceRoleService.deleteSpaceRole(
-      createSpaceRoleDto,
-      user,
-    );
+  ): Promise<void> {
+    await this.spaceRoleService.deleteSpaceRole(createSpaceRoleDto, user);
   }
 
   @Patch('/:user_id')
@@ -49,7 +51,7 @@ export class SpaceRoleController {
     @Body() createSpaceRoleDto: CreateSpaceRoleDto,
     @Param('user_id') user_id: number,
     @GetUser() user: User,
-  ) {
+  ): Promise<SpaceRole> {
     return await this.spaceRoleService.updateSpaceRole(
       createSpaceRoleDto,
       user_id,
@@ -58,17 +60,28 @@ export class SpaceRoleController {
   }
 
   @Get('roles/:space_id')
-  async getSpaceRoleDto(
+  async getSpaceRoleList(
     @Param('space_id') space_id: number,
-  ): Promise<SpaceRole[]> {
-    return await this.spaceRoleService.getSpaceRoles(space_id);
+  ): Promise<{ name: string; role: Role }[]> {
+    const spaceRoles = await this.spaceRoleService.getSpaceRoles(space_id);
+    return spaceRoles.map((spaceRole) => ({
+      name: String(spaceRole.name),
+      role: spaceRole.role,
+    }));
   }
 
   @Get('role/:space_id')
   async getMySpaceRole(
     @Param('space_id') space_id: number,
     @GetUser() user: User,
-  ): Promise<SpaceRole> {
-    return await this.spaceRoleService.getMySpaceRole(space_id, user);
+  ): Promise<{ name: string; role: Role }> {
+    const spaceRole = await this.spaceRoleService.getMySpaceRole(
+      space_id,
+      user,
+    );
+    return {
+      name: String(spaceRole.name),
+      role: spaceRole.role,
+    };
   }
 }

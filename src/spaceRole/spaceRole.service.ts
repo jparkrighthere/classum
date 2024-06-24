@@ -13,6 +13,8 @@ import { User } from 'src/user/user.entity';
 import { UserSpaceService } from 'src/userSpace/userSpace.service';
 import { UserService } from 'src/user/user.service';
 import { SpaceRepository } from 'src/space/space.repository';
+import { Space } from 'src/space/space.entity';
+import { UserSpace } from 'src/userSpace/userSpace.entity';
 
 @Injectable()
 export class SpaceRoleService {
@@ -29,20 +31,12 @@ export class SpaceRoleService {
     user: User,
   ): Promise<SpaceRole> {
     // check if the space exists
-    const space = await this.spaceRepository.getSpaceById(
-      createSpaceRoleDto.space_id,
-    );
-    if (!space) {
-      throw new NotFoundException('Space not found');
-    }
+    const space = await this.validateSpace(createSpaceRoleDto.space_id);
     // check if the current user is in the space
-    const currentUserSpace = await this.userSpaceRepository.getUserSpaceByIds(
+    const currentUserSpace = await this.validateUserSpace(
       user.user_id,
       createSpaceRoleDto.space_id,
     );
-    if (!currentUserSpace) {
-      throw new NotFoundException('Current user not in this space');
-    }
     // check if the current user is an admin or owner
     const currentUserSpaceRole = currentUserSpace.spaceRole;
     if (
@@ -86,20 +80,12 @@ export class SpaceRoleService {
     user: User,
   ): Promise<void> {
     // check if space exists
-    const space = await this.spaceRepository.getSpaceById(
-      createSpaceRoleDto.space_id,
-    );
-    if (!space) {
-      throw new NotFoundException('Space not found');
-    }
+    const space = await this.validateSpace(createSpaceRoleDto.space_id);
     // check if the current user is in the space
-    const userSpace = await this.userSpaceRepository.getUserSpaceByIds(
+    const userSpace = await this.validateUserSpace(
       user.user_id,
       createSpaceRoleDto.space_id,
     );
-    if (!userSpace) {
-      throw new NotFoundException('Current user not in this space');
-    }
     // check if the current user is an admin or owner
     const userSpaceRole = userSpace.spaceRole;
     if (
@@ -109,19 +95,13 @@ export class SpaceRoleService {
       throw new BadRequestException('Current user is not an admin or owner');
     }
     // check if spaceRole exists in this space
-    const spaceRole =
-      await this.spaceRoleRepository.getSpaceRoleByNameRoleSpace(
-        createSpaceRoleDto.name,
-        createSpaceRoleDto.role,
-        space,
-      );
-    console.log('1' + spaceRole);
-    if (!spaceRole) {
-      throw new NotFoundException('SpaceRole not found');
-    }
+    const spaceRole = await this.validateSpaceRole(
+      createSpaceRoleDto.name,
+      createSpaceRoleDto.role,
+      space,
+    );
     // check if spaceRole is assigned to a user
     const deleteUserSpace = spaceRole.userSpaces;
-    console.log(deleteUserSpace);
     if (deleteUserSpace !== null) {
       throw new BadRequestException(
         'Cannot delete SpaceRole as it is assigned to a user',
@@ -136,12 +116,7 @@ export class SpaceRoleService {
     user: User,
   ): Promise<SpaceRole> {
     // check if space exists
-    const space = await this.spaceRepository.getSpaceById(
-      createSpaceRoleDto.space_id,
-    );
-    if (!space) {
-      throw new NotFoundException('Space not found');
-    }
+    const space = await this.validateSpace(createSpaceRoleDto.space_id);
     // check if the owner is in the space
     const ownerUserSpace = await this.userSpaceRepository.getUserSpaceByIds(
       user.user_id,
@@ -155,27 +130,17 @@ export class SpaceRoleService {
       throw new BadRequestException('User is not the owner of this space');
     }
     // check if the user is in the space
-    const userSpace = await this.userSpaceRepository.getUserSpaceByIds(
-      user_id,
-      createSpaceRoleDto.space_id,
-    );
-    if (!userSpace) {
-      throw new NotFoundException('User not in this space');
-    }
+    const userSpace = await this.validateUserSpace(user_id, space.space_id);
     const userSpaceRole = userSpace.spaceRole;
     if (!userSpaceRole) {
       throw new NotFoundException('User does not have a role in this space');
     }
     // check if the chosen spaceRole exists in this space
-    const spaceRole =
-      await this.spaceRoleRepository.getSpaceRoleByNameRoleSpace(
-        createSpaceRoleDto.name,
-        createSpaceRoleDto.role,
-        space,
-      );
-    if (!spaceRole) {
-      throw new NotFoundException('Chosen SpaceRole not found');
-    }
+    const spaceRole = await this.validateSpaceRole(
+      createSpaceRoleDto.name,
+      createSpaceRoleDto.role,
+      space,
+    );
     // check if the chosen spaceRole is assigned to an another user
     const chosenUserSpace =
       await this.userSpaceRepository.getUserSpaceBySpaceAndSpaceRole(
@@ -201,27 +166,12 @@ export class SpaceRoleService {
     user: User,
   ): Promise<void> {
     // check if space exists
-    const space = await this.spaceRepository.getSpaceById(space_id);
-    if (!space) {
-      throw new NotFoundException('Space not found');
-    }
+    const space = await this.validateSpace(space_id);
     // check if the user is in the space
-    const userSpace = await this.userSpaceRepository.getUserSpaceByIds(
-      user_id,
-      space_id,
-    );
-    if (!userSpace) {
-      throw new NotFoundException('User not in this space');
-    }
+    const userSpace = await this.validateUserSpace(user_id, space_id);
     const userSpaceRole = userSpace.spaceRole;
     // check if the owner is in the space
-    const ownerUserSpace = await this.userSpaceRepository.getUserSpaceByIds(
-      user.user_id,
-      space_id,
-    );
-    if (!ownerUserSpace) {
-      throw new NotFoundException('Owner not in this space');
-    }
+    const ownerUserSpace = await this.validateUserSpace(user.user_id, space_id);
     const ownerSpaceRole = ownerUserSpace.spaceRole;
     if (ownerSpaceRole.role !== Role.OWNER) {
       throw new BadRequestException(
@@ -230,9 +180,21 @@ export class SpaceRoleService {
     }
     // assign owner role
     userSpaceRole.role = Role.OWNER;
-    ownerSpaceRole.role = Role.USER;
-    await this.spaceRoleRepository.save(userSpaceRole);
-    await this.spaceRoleRepository.save(ownerSpaceRole);
+    await this.userSpaceRepository.softRemove(ownerUserSpace);
+    const chosenUser = await this.userService.findUserById(user_id);
+    await this.userSpaceService.connectUserSpace(
+      chosenUser,
+      space,
+      userSpaceRole,
+    );
+    // former owner becomes admin
+    ownerSpaceRole.role = Role.ADMIN;
+    const ownerUser = await this.userService.findUserById(user.user_id);
+    await this.userSpaceService.connectUserSpace(
+      ownerUser,
+      space,
+      ownerSpaceRole,
+    );
   }
 
   async getSpaceRoles(space_id: number): Promise<SpaceRole[]> {
@@ -260,5 +222,45 @@ export class SpaceRoleService {
     }
     const userSpaceRole = userSpace.spaceRole;
     return userSpaceRole;
+  }
+
+  // helper functions below
+  private async validateSpace(space_id: number): Promise<Space> {
+    const space = await this.spaceRepository.getSpaceById(space_id);
+    if (!space) {
+      throw new NotFoundException('Space not found');
+    }
+    return space;
+  }
+
+  private async validateUserSpace(
+    user_id: number,
+    space_id: number,
+  ): Promise<UserSpace> {
+    const currentUserSpace = await this.userSpaceRepository.getUserSpaceByIds(
+      user_id,
+      space_id,
+    );
+    if (!currentUserSpace) {
+      throw new NotFoundException('Current user not in this space');
+    }
+    return currentUserSpace;
+  }
+
+  private async validateSpaceRole(
+    name: string,
+    role: Role,
+    space: Space,
+  ): Promise<SpaceRole> {
+    const spaceRole =
+      await this.spaceRoleRepository.getSpaceRoleByNameRoleSpace(
+        name,
+        role,
+        space,
+      );
+    if (!spaceRole) {
+      throw new NotFoundException('SpaceRole not found');
+    }
+    return spaceRole;
   }
 }

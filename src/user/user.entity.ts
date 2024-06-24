@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { UserSpace } from '../userSpace/userSpace.entity';
+import { Post } from 'src/post/post.entity';
 
 @Entity()
 export class User {
@@ -25,5 +26,8 @@ export class User {
   isActive: boolean;
 
   @OneToMany(() => UserSpace, (userSpace) => userSpace.user)
-  userSpaces: UserSpace[]; // 사용자-공간 관계
+  userSpaces: UserSpace[];
+
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
 }

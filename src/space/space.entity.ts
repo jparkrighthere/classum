@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { SpaceRole } from '../spaceRole/spaceRole.entity';
 import { UserSpace } from '../userSpace/userSpace.entity';
+import { Post } from 'src/post/post.entity';
 
 @Entity()
 export class Space {
@@ -31,13 +32,19 @@ export class Space {
     cascade: ['insert', 'update', 'remove', 'soft-remove'],
     onDelete: 'CASCADE',
   })
-  userSpaces: UserSpace[]; // 사용자-공간 관계
+  userSpaces: UserSpace[];
 
   @Column({ length: 8 })
-  userAccessCode: string; // 사용자 접근 코드
+  userAccessCode: string;
 
   @Column({ length: 8 })
-  adminAccessCode: string; // 관리자 접근 코드
+  adminAccessCode: string;
+
+  @OneToMany(() => Post, (post) => post.space, {
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
+  })
+  posts: Post[];
 
   @DeleteDateColumn()
   deletedAt?: Date;

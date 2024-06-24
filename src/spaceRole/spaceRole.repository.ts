@@ -4,7 +4,6 @@ import { CreateSpaceRoleDto } from './dto/create-spaceRole.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Space } from 'src/space/space.entity';
 import { Role } from './enum/spaceRole.enum';
-import { UpdateSpaceRoleDto } from './dto/update-spaceRole.dto';
 
 @Injectable()
 export class SpaceRoleRepository extends Repository<SpaceRole> {
@@ -73,14 +72,14 @@ export class SpaceRoleRepository extends Repository<SpaceRole> {
   }
 
   async updateSpaceRole(
-    updateSpaceRoleDto: UpdateSpaceRoleDto,
+    createSpaceRoleDto: CreateSpaceRoleDto,
     role_id: number,
   ): Promise<SpaceRole> {
     const spaceRoleToUpdate = await this.findOne({
       where: { role_id },
     });
-    spaceRoleToUpdate.name = updateSpaceRoleDto.spaceRole.name;
-    spaceRoleToUpdate.role = updateSpaceRoleDto.spaceRole.role;
+    spaceRoleToUpdate.name = createSpaceRoleDto.name;
+    spaceRoleToUpdate.role = createSpaceRoleDto.role;
 
     await this.save(spaceRoleToUpdate);
     return spaceRoleToUpdate;

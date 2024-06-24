@@ -20,12 +20,12 @@ import { AuthGuard } from '@nestjs/passport';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('profile')
+  @Get()
   async getProfile(@GetUser() user: User): Promise<User> {
     return user;
   }
 
-  @Patch('profile')
+  @Patch()
   @UsePipes(ValidationPipe)
   async updateProfile(
     @GetUser() user: User,
@@ -41,11 +41,12 @@ export class UserController {
   async getUserProfile(
     @Param('user_id') user_id: number,
   ): Promise<Partial<User>> {
-    // if (user.user_id !== user_id) {
-    //   throw new UnauthorizedException(
-    //     'You are not authorized to view this profile',
-    //   );
-    // }
-    return await this.userService.findUserById(user_id);
+    const user = await this.userService.findUserById(user_id);
+    const safeUser = {
+      last_name: user.last_name,
+      first_name: user.first_name,
+      profile: user.profile,
+    };
+    return safeUser;
   }
 }

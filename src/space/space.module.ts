@@ -1,26 +1,19 @@
 import { Module } from '@nestjs/common';
-import { SpaceService } from './space.service';
-import { SpaceRoleModule } from 'src/spaceRole/spaceRole.module';
-import { UserSpaceModule } from 'src/userSpace/userSpace.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SpaceService } from './space.service';
 import { SpaceRepository } from './space.repository';
 import { SpaceController } from './space.controller';
-import { SpaceRoleRepository } from 'src/spaceRole/spaceRole.repository';
-import { UserSpaceRepository } from 'src/userSpace/userSpace.repository';
+import { SpaceRoleModule } from 'src/spaceRole/spaceRole.module';
+import { UserSpaceModule } from 'src/userSpace/userSpace.module';
 
 @Module({
   imports: [
-    // space entity?
-    TypeOrmModule.forFeature([
-      SpaceRepository,
-      SpaceRoleRepository,
-      UserSpaceRepository,
-    ]),
-    SpaceRoleModule,
+    TypeOrmModule.forFeature([SpaceRepository]),
     UserSpaceModule,
+    SpaceRoleModule,
   ],
   controllers: [SpaceController],
-  providers: [SpaceService, SpaceRepository, UserSpaceRepository],
+  providers: [SpaceService, SpaceRepository],
   exports: [SpaceService],
 })
 export class SpaceModule {}

@@ -1,4 +1,4 @@
-import { IsEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
@@ -18,6 +18,5 @@ export class UpdateUserDto {
   profile: string;
 
   // NO EMAIL FIELD
-  @IsEmpty()
   email: string;
 }

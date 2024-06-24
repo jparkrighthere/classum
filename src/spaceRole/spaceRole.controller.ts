@@ -5,17 +5,17 @@ import {
   Param,
   Patch,
   Post,
+  Get,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { SpaceRoleService } from './spaceRole.service';
 import { CreateSpaceRoleDto } from './dto/create-spaceRole.dto';
-import { DeleteSpaceRoleDto } from './dto/delete-spaceRole.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateSpaceRoleDto } from './dto/update-spaceRole.dto';
 import { GetUser } from 'src/user.decorator';
 import { User } from 'src/user/user.entity';
+import { SpaceRole } from './spaceRole.entity';
 
 @Controller('spacerole')
 @UseGuards(AuthGuard('jwt'))
@@ -26,22 +26,19 @@ export class SpaceRoleController {
   @UsePipes(ValidationPipe)
   async addSpaceRole(
     @Body() createSpaceRoleDto: CreateSpaceRoleDto,
-    @Body('space_id') space_id: number,//이걸 createSpaceRoleDTO에 넣어야함?
+    @GetUser() user: User,
   ) {
-    return await this.spaceRoleService.addSpaceRole(
-      createSpaceRoleDto,
-      space_id,
-    );
+    return await this.spaceRoleService.addSpaceRole(createSpaceRoleDto, user);
   }
 
   @Delete()
   @UsePipes(ValidationPipe)
   async deleteSpaceRole(
-    @Body() deleteSpaceRoleDto: DeleteSpaceRoleDto,
+    @Body() createSpaceRoleDto: CreateSpaceRoleDto,
     @GetUser() user: User,
   ) {
     return await this.spaceRoleService.deleteSpaceRole(
-      deleteSpaceRoleDto,
+      createSpaceRoleDto,
       user,
     );
   }
@@ -49,14 +46,29 @@ export class SpaceRoleController {
   @Patch('/:user_id')
   @UsePipes(ValidationPipe)
   async updateSpaceRole(
-    @Body() updateSpaceRoleDto: UpdateSpaceRoleDto,
+    @Body() createSpaceRoleDto: CreateSpaceRoleDto,
     @Param('user_id') user_id: number,
     @GetUser() user: User,
   ) {
     return await this.spaceRoleService.updateSpaceRole(
-      updateSpaceRoleDto,
+      createSpaceRoleDto,
       user_id,
       user,
     );
+  }
+
+  @Get('roles/:space_id')
+  async getSpaceRoleDto(
+    @Param('space_id') space_id: number,
+  ): Promise<SpaceRole[]> {
+    return await this.spaceRoleService.getSpaceRoles(space_id);
+  }
+
+  @Get('role/:space_id')
+  async getMySpaceRole(
+    @Param('space_id') space_id: number,
+    @GetUser() user: User,
+  ): Promise<SpaceRole> {
+    return await this.spaceRoleService.getMySpaceRole(space_id, user);
   }
 }

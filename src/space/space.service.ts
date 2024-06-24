@@ -12,15 +12,11 @@ import { UserSpaceService } from 'src/userSpace/userSpace.service';
 import { Role } from 'src/spaceRole/enum/spaceRole.enum';
 import { UserSpace } from 'src/userSpace/userSpace.entity';
 import { JoinSpaceDto } from './dto/join-space.dto';
-import { SpaceRoleRepository } from 'src/spaceRole/spaceRole.repository';
-import { UserSpaceRepository } from 'src/userSpace/userSpace.repository';
 
 @Injectable()
 export class SpaceService {
   constructor(
     private spaceRepository: SpaceRepository,
-    private spaceRoleRepository: SpaceRoleRepository,
-    private userSpaceRepository: UserSpaceRepository,
     private userSpaceService: UserSpaceService,
     private spaceRoleService: SpaceRoleService,
   ) {}
@@ -83,6 +79,10 @@ export class SpaceService {
 
   async getSpaces(user: User): Promise<Space[]> {
     return await this.spaceRepository.findSpaces(user);
+  }
+
+  async getSpace(space_id: number): Promise<Space> {
+    return await this.spaceRepository.getSpaceById(space_id);
   }
 
   async joinSpace(joinSpaceDto: JoinSpaceDto, user: User): Promise<UserSpace> {
@@ -156,7 +156,7 @@ export class SpaceService {
 
     // Delete userSpaces entity first
     for (const userSpace of space.userSpaces) {
-      await this.userSpaceRepository.softRemove(userSpace);
+      await this.userSpaceService.removeUserSpace(userSpace);
     }
 
     return await this.spaceRepository.softRemove(space);

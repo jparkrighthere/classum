@@ -1,5 +1,11 @@
 import { Role } from '../enum/spaceRole.enum';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateSpaceRoleDto {
   @IsString()
@@ -9,4 +15,8 @@ export class CreateSpaceRoleDto {
   @IsEnum(Role)
   @IsNotEmpty()
   role: Role;
+
+  @IsNumber()
+  @IsOptional()
+  space_id: number;
 }

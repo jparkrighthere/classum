@@ -8,11 +8,27 @@ export class UserSpaceRepository extends Repository<UserSpace> {
     super(UserSpace, dataSource.createEntityManager());
   }
 
-  async getUserSpaceByIds(userId: number, spaceId: number): Promise<UserSpace> {
+  async getUserSpaceByIds(
+    user_id: number,
+    space_id: number,
+  ): Promise<UserSpace> {
     return await this.findOne({
       where: {
-        user: Equal(userId),
-        space: Equal(spaceId),
+        user: Equal(user_id),
+        space: Equal(space_id),
+      },
+      relations: ['space', 'spaceRole', 'user'],
+    });
+  }
+
+  async getUserSpaceBySpaceAndSpaceRole(
+    space_id: number,
+    role_id: number,
+  ): Promise<UserSpace> {
+    return await this.findOne({
+      where: {
+        space: Equal(space_id),
+        spaceRole: Equal(role_id),
       },
       relations: ['space', 'spaceRole', 'user'],
     });

@@ -13,12 +13,12 @@ export class UserService {
   // Update user
   async updateProfile(user_id: number, user: UpdateUserDto): Promise<User> {
     const updatedUser = await this.userRepository.updateUser(user_id, user);
+    console.log(updatedUser);
     return updatedUser;
   }
 
-  async findUserById(user_id: number): Promise<Partial<User>> {
-    const user = await this.userRepository.getUserById(user_id);
-    return user;
+  async findUserById(user_id: number): Promise<User> {
+    return await this.userRepository.getUserById(user_id);
   }
 
   // // Read all users

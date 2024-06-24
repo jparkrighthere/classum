@@ -30,4 +30,8 @@ export class UserSpaceService {
   async findUserSpace(userId: number, spaceId: number): Promise<UserSpace> {
     return this.userSpaceRepository.getUserSpaceByIds(userId, spaceId);
   }
+
+  async removeUserSpace(userSpace: UserSpace): Promise<void> {
+    await this.userSpaceRepository.softRemove(userSpace);
+  }
 }

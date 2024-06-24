@@ -59,7 +59,7 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
-  async getUserById(id: number): Promise<Partial<User>> {
+  async getUserById(id: number): Promise<User> {
     const user = await this.findOne({
       where: { user_id: id },
     });
@@ -67,13 +67,6 @@ export class UserRepository extends Repository<User> {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    const safeUser = {
-      last_name: user.last_name,
-      first_name: user.first_name,
-      profile: user.profile,
-    };
-
-    return safeUser;
+    return user;
   }
 }

@@ -42,6 +42,6 @@ export class Chat {
   @TreeParent()
   parent: Chat;
 
-  @TreeChildren()
+  @TreeChildren({ cascade: true })
   children: Chat[];
 }

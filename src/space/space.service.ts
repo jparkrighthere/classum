@@ -1,5 +1,6 @@
 import {
-  BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -26,7 +27,7 @@ export class SpaceService {
     // check if the space name is already taken
     const spaceExists = await this.spaceRepository.getSpaceByName(name);
     if (spaceExists) {
-      throw new BadRequestException('Space name already taken');
+      throw new ConflictException('Space name already taken');
     }
     const userAccessCode = this.generatedAccessCode(8);
     const adminAccessCode = this.generatedAccessCode(8);
@@ -97,7 +98,7 @@ export class SpaceService {
     );
 
     if (userSpace) {
-      throw new BadRequestException('User already in this space');
+      throw new ConflictException('User already in this space');
     }
 
     // check if access code is for user or admin
@@ -116,7 +117,7 @@ export class SpaceService {
       );
       return newUserSpace;
     } else {
-      throw new BadRequestException('Access code is incorrect');
+      throw new ForbiddenException('Access code is incorrect');
     }
   }
 
@@ -140,8 +141,10 @@ export class SpaceService {
     const ownerSpaceRole = space.spaceRoles.find(
       (spaceRole) => spaceRole.role === Role.OWNER,
     );
+    console.log(userSpace);
+    console.log(ownerSpaceRole);
     if (userSpace.spaceRole.role_id !== ownerSpaceRole.role_id) {
-      throw new BadRequestException('User is not the owner of the space');
+      throw new ForbiddenException('User is not the owner of the space');
     }
 
     // Delete userSpaces entity first

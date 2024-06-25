@@ -51,12 +51,17 @@ export class SpaceRoleController {
     @Body() createSpaceRoleDto: CreateSpaceRoleDto,
     @Param('user_id') user_id: number,
     @GetUser() user: User,
-  ): Promise<SpaceRole> {
-    return await this.spaceRoleService.updateSpaceRole(
+  ): Promise<Partial<SpaceRole>> {
+    const updateSpaceRole = await this.spaceRoleService.updateSpaceRole(
       createSpaceRoleDto,
       user_id,
       user,
     );
+    return {
+      role_id: updateSpaceRole.role_id,
+      name: updateSpaceRole.name,
+      role: updateSpaceRole.role,
+    };
   }
 
   @Get('roles/:space_id')

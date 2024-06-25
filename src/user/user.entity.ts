@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { UserSpace } from '../userSpace/userSpace.entity';
 import { Post } from 'src/post/post.entity';
+import { Chat } from 'src/chat/chat.entity';
 
 @Entity()
 export class User {
@@ -36,10 +37,10 @@ export class User {
   })
   posts: Post[];
 
-  @OneToMany(() => Post, (post) => post.author, {
+  @OneToMany(() => Chat, (chat) => chat.author, {
     eager: true,
     cascade: ['insert', 'update', 'remove', 'soft-remove'],
     onDelete: 'CASCADE',
   })
-  chats: Post[];
+  chats: Chat[];
 }

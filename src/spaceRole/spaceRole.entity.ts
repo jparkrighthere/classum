@@ -5,7 +5,6 @@ import {
   ManyToOne,
   JoinColumn,
   DeleteDateColumn,
-  OneToOne,
 } from 'typeorm';
 import { Role } from './enum/spaceRole.enum';
 import { Space } from '../space/space.entity';
@@ -32,7 +31,7 @@ export class SpaceRole {
   @JoinColumn()
   space: Space;
 
-  @OneToOne(() => UserSpace, (userSpace) => userSpace.spaceRole, {
+  @ManyToOne(() => UserSpace, (userSpace) => userSpace.spaceRole, {
     eager: true,
     cascade: ['insert', 'update', 'remove', 'soft-remove'],
     onDelete: 'CASCADE',

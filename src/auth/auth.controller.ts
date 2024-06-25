@@ -8,7 +8,6 @@ import {
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credential.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { User } from 'src/user/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -17,8 +16,11 @@ export class AuthController {
   // Sign up endpoint
   @Post('/signup')
   @UsePipes(ValidationPipe)
-  async signUp(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return await this.authService.signUp(createUserDto);
+  async signUp(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ user_id: number }> {
+    const user = await this.authService.signUp(createUserDto);
+    return { user_id: user.user_id };
   }
 
   // Sign in endpoint

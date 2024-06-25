@@ -14,14 +14,13 @@ import { PostService } from './post.service';
 import { User } from 'src/user/user.entity';
 import { GetUser } from 'src/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
-import { Chat } from 'src/chat/chat.entity';
 
 @Controller('post')
 @UseGuards(AuthGuard('jwt'))
 export class PostController {
   constructor(private postService: PostService) {}
 
-  @Get('/:space_id')
+  @Get('/list/:space_id')
   async getPostList(
     @GetUser() user: User,
     @Param('space_id') space_id: number,
@@ -54,24 +53,27 @@ export class PostController {
     @GetUser() user: User,
     @Param('space_id') space_id: number,
     @Param('post_id') post_id: number,
-  ): Promise<
-    Promise<{
-      title: string;
-      content: string;
-      attachment: string;
-      chats: Chat[];
-      author?: Partial<User>;
-    }>
-  > {
+  ): Promise<{
+    title: string;
+    content: string;
+    attachment: string;
+    author?: Partial<User>;
+  }> {
     const post = await this.postService.getPost(space_id, post_id, user);
     return post;
   }
 
-  @Get('/popular/:space_id')
+  @Get('/popular/list/:space_id')
   async getPopularPosts(
     @Param('space_id') space_id: number,
-  ): Promise<string[]> {
+  ): Promise<{ [key: number]: { title: string } }> {
     const topFivePosts = await this.postService.getPopularPosts(space_id);
-    return topFivePosts.map((post) => post.title);
+    const result: { [key: number]: { title: string } } = {};
+
+    topFivePosts.forEach((post, index) => {
+      result[index + 1] = { title: post.title };
+    });
+
+    return result;
   }
 }

@@ -1,6 +1,6 @@
 import {
-  BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -43,7 +43,7 @@ export class SpaceRoleService {
       currentUserSpaceRole.role !== Role.OWNER &&
       currentUserSpaceRole.role !== Role.ADMIN
     ) {
-      throw new BadRequestException('Current user is not an admin or owner');
+      throw new ForbiddenException('Current user is not an admin or owner');
     }
     const { name } = createSpaceRoleDto;
     // check if the role is already defined
@@ -92,7 +92,7 @@ export class SpaceRoleService {
       userSpaceRole.role !== Role.OWNER &&
       userSpaceRole.role !== Role.ADMIN
     ) {
-      throw new BadRequestException('Current user is not an admin or owner');
+      throw new ForbiddenException('Current user is not an admin or owner');
     }
     // check if spaceRole exists in this space
     const spaceRole = await this.validateSpaceRole(
@@ -103,7 +103,7 @@ export class SpaceRoleService {
     // check if spaceRole is assigned to a user
     const deleteUserSpace = spaceRole.userSpaces;
     if (deleteUserSpace !== null) {
-      throw new BadRequestException(
+      throw new ConflictException(
         'Cannot delete SpaceRole as it is assigned to a user',
       );
     }
@@ -127,7 +127,7 @@ export class SpaceRoleService {
     }
     const ownerSpaceRole = ownerUserSpace.spaceRole;
     if (ownerSpaceRole.role !== Role.OWNER) {
-      throw new BadRequestException('User is not the owner of this space');
+      throw new ForbiddenException('User is not the owner of this space');
     }
     // check if the user is in the space
     const userSpace = await this.validateUserSpace(user_id, space.space_id);
@@ -148,8 +148,8 @@ export class SpaceRoleService {
         spaceRole.role_id,
       );
     if (chosenUserSpace) {
-      throw new BadRequestException(
-        'Cannot delete SpaceRole as it is assigned to a user',
+      throw new ConflictException(
+        'Cannot take the SpaceRole as it is assigned to a user',
       );
     }
     // update
@@ -171,18 +171,18 @@ export class SpaceRoleService {
     // check if the user is in the space
     const userSpace = await this.validateUserSpace(user_id, space_id);
     if (!userSpace) {
-      throw new BadRequestException('User is not in the space');
+      throw new NotFoundException('User is not in the space');
     }
     const userSpaceRole = userSpace.spaceRole;
 
     // check if the owner is in the space
     const ownerUserSpace = await this.validateUserSpace(user.user_id, space_id);
     if (!ownerUserSpace) {
-      throw new BadRequestException('Owner is not in the space');
+      throw new NotFoundException('Owner is not in the space');
     }
     const ownerSpaceRole = ownerUserSpace.spaceRole;
     if (ownerSpaceRole.role !== Role.OWNER) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         'Current user is not the owner of this space',
       );
     }

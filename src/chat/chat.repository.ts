@@ -14,14 +14,17 @@ export class ChatRepository extends Repository<Chat> {
   async findChatById(chat_id: number, post: Post): Promise<Chat> {
     return await this.findOne({
       where: { chat_id, post },
+      relations: ['author', 'children', 'children.author'],
     });
   }
 
   async findAllRootChats(post: Post): Promise<Chat[]> {
-    return await this.find({
+    const rootChats = await this.find({
       where: { post, parent: null },
       relations: ['author', 'children', 'children.author'],
     });
+
+    return rootChats;
   }
 
   // async findRootChatById(chat_id: number, post: Post): Promise<Chat> {
@@ -43,7 +46,6 @@ export class ChatRepository extends Repository<Chat> {
       author: user,
       post,
       parent: null,
-      children: [],
     });
     try {
       await this.save(chat);
@@ -67,8 +69,8 @@ export class ChatRepository extends Repository<Chat> {
       post,
       parent: parentChat,
     });
+    // parentChat.children.push(reaction);
     try {
-      parentChat.children.push(reaction);
       await this.save(reaction);
     } catch (error) {
       console.error(error);

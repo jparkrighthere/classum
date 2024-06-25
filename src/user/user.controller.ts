@@ -14,36 +14,51 @@ import { User } from './user.entity';
 import { GetUser } from 'src/user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { ChatService } from 'src/chat/chat.service';
-import { PostService } from 'src/post/post.service';
+import { Post } from 'src/post/post.entity';
+import { Chat } from 'src/chat/chat.entity';
 
 @Controller('user')
 @UseGuards(AuthGuard('jwt'))
 export class UserController {
-  constructor(
-    private userService: UserService,
-    private postService: PostService,
-    private chatService: ChatService,
-  ) {}
+  constructor(private userService: UserService) {}
 
-  @Get()
-  async getProfile(@GetUser() user: User): Promise<User> {
-    return user;
+  @Get('profile')
+  async getProfile(@GetUser() user: User): Promise<Partial<User>> {
+    // return user's email, first_name, last_name, and profile
+    const returnUser = {
+      email: user.email,
+      last_name: user.last_name,
+      first_name: user.first_name,
+      profile: user.profile,
+    };
+    return returnUser;
   }
 
-  @Patch()
+  @Patch('profile')
   @UsePipes(ValidationPipe)
   async updateProfile(
     @GetUser() user: User,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<Partial<User>> {
     if (updateUserDto.email) {
       throw new BadRequestException('Email update is not allowed');
     }
-    return await this.userService.updateProfile(user.user_id, updateUserDto);
+    const updateProfile = await this.userService.updateProfile(
+      user.user_id,
+      updateUserDto,
+    );
+    // return user's email, password, first_name, last_name, and profile
+    const returnUser = {
+      email: updateProfile.email,
+      password: updateProfile.password,
+      last_name: updateProfile.last_name,
+      first_name: updateProfile.first_name,
+      profile: updateProfile.profile,
+    };
+    return returnUser;
   }
 
-  @Get('/:user_id')
+  @Get('profile/:user_id')
   async getUserProfile(
     @Param('user_id') user_id: number,
   ): Promise<Partial<User>> {
@@ -56,15 +71,13 @@ export class UserController {
     return safeUser;
   }
 
-  @Get('/searchPosts')
-  async searchUserPosts(@GetUser() user: User): Promise<string[]> {
-    const userPosts = await this.postService.getMyPosts(user);
-    return userPosts.map((post) => post.title);
+  @Get('/posts')
+  async getUserPosts(@GetUser() user: User): Promise<Post[]> {
+    return user.posts;
   }
 
-  @Get('/searchChats')
-  async searchUserChats(@GetUser() user: User): Promise<string[]> {
-    const userChats = await this.chatService.getMyChats(user);
-    return userChats.map((chat) => chat.content);
+  @Get('/chats')
+  async getUserChats(@GetUser() user: User): Promise<Chat[]> {
+    return user.chats;
   }
 }

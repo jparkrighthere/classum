@@ -14,12 +14,14 @@ export class PostRepository extends Repository<PostEntity> {
   async findPosts(space_id: number): Promise<PostEntity[]> {
     return await this.find({
       where: { space: { space_id } },
+      relations: ['author'],
     });
   }
 
   async findPostById(post_id: number, space: Space): Promise<PostEntity> {
     return await this.findOne({
       where: { post_id, space },
+      relations: ['author', 'chats', 'chats.author'],
     });
   }
 
@@ -49,14 +51,14 @@ export class PostRepository extends Repository<PostEntity> {
   async findPopularPosts(space_id: number): Promise<PostEntity[]> {
     const posts = await this.find({
       where: { space: { space_id } },
-      relations: ['chats', 'author'],
+      relations: ['chats'],
     });
+    console.log(posts);
     const popularPosts = posts
       .map((post) => ({
         post,
         commentCount: post.chats.length,
-        uniqueCommenters: new Set(post.chats.map((chat) => chat.author.user_id))
-          .size,
+        uniqueCommenters: new Set(post.chats.map((chat) => chat.author)).size,
       }))
       .sort((a, b) => {
         if (a.commentCount !== b.commentCount) {
@@ -66,6 +68,7 @@ export class PostRepository extends Repository<PostEntity> {
       })
       .slice(0, 5)
       .map((item) => item.post);
+
     return popularPosts;
   }
 }

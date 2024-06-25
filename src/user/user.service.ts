@@ -13,7 +13,6 @@ export class UserService {
   // Update user
   async updateProfile(user_id: number, user: UpdateUserDto): Promise<User> {
     const updatedUser = await this.userRepository.updateUser(user_id, user);
-    console.log(updatedUser);
     return updatedUser;
   }
 

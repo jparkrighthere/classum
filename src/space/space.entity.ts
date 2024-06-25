@@ -17,7 +17,7 @@ export class Space {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ default: null })
   logo: string;
 
   @OneToMany(() => SpaceRole, (spaceRole) => spaceRole.space, {

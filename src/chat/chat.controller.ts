@@ -26,11 +26,13 @@ export class ChatController {
     @GetUser() user: User,
   ): Promise<
     {
-      content: string;
-      author?: {
-        last_name: string;
-        first_name: string;
-        profile: string;
+      chat: {
+        content: string;
+        author?: {
+          last_name: string;
+          first_name: string;
+          profile: string;
+        };
       };
       reactions?: {
         content: string;
@@ -43,15 +45,19 @@ export class ChatController {
     }[]
   > {
     const chats = await this.chatService.getAllChats(space_id, post_id, user);
-    return chats.map((chat) => ({
-      content: chat.content,
-      author: chat.author
-        ? {
-            last_name: chat.author.last_name,
-            first_name: chat.author.first_name,
-            profile: chat.author.profile,
-          }
-        : undefined,
+
+    // Map each chat to include 'chat' and 'reactions' fields
+    const mappedChats = chats.map((chat) => ({
+      chat: {
+        content: chat.content,
+        author: chat.author
+          ? {
+              last_name: chat.author.last_name,
+              first_name: chat.author.first_name,
+              profile: chat.author.profile,
+            }
+          : undefined,
+      },
       reactions:
         chat.reactions?.map((reaction) => ({
           content: reaction.content,
@@ -62,25 +68,27 @@ export class ChatController {
                 profile: reaction.author.profile,
               }
             : undefined,
-        })) || undefined,
+        })) || [],
     }));
+
+    return mappedChats;
   }
 
-  @Get('/space_id/:post_id/:chat_id')
-  async getSingleChat(
-    @Param('space_id') space_id: number,
-    @Param('post_id') post_id: number,
-    @Param('chat_id') chat_id: number,
-    @GetUser() user: User,
-  ): Promise<{ content: string }> {
-    const chat = await this.chatService.getChat(
-      space_id,
-      post_id,
-      chat_id,
-      user,
-    );
-    return { content: chat.content };
-  }
+  // @Get('/space_id/:post_id/:chat_id')
+  // async getSingleChat(
+  //   @Param('space_id') space_id: number,
+  //   @Param('post_id') post_id: number,
+  //   @Param('chat_id') chat_id: number,
+  //   @GetUser() user: User,
+  // ): Promise<{ content: string }> {
+  //   const chat = await this.chatService.getChat(
+  //     space_id,
+  //     post_id,
+  //     chat_id,
+  //     user,
+  //   );
+  //   return { content: chat.content };
+  // }
 
   @Post()
   async addChat(

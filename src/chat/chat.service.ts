@@ -33,9 +33,12 @@ export class ChatService {
 
   // TODO: Implement getMyChats
   async getMyChats(user: User): Promise<Chat[]> {
-    return this.chatRepository.find({
+    const chats = this.chatRepository.find({
       where: { author: user },
+      relations: ['author', 'chat'],
     });
+    console.log(chats);
+    return chats;
   }
 
   // Made for specific return type
@@ -168,6 +171,10 @@ export class ChatService {
     ) {
       throw new ForbiddenException('User is not the author of the chat');
     }
+    // delete children first if there are any
+    if (chat.children.length > 0) {
+      await this.chatRepository.softRemove(chat.children);
+    }
     await this.chatRepository.softRemove(chat);
   }
 
@@ -196,7 +203,7 @@ export class ChatService {
       post,
       parentChat,
     );
-    return newChat;
+    return reaction;
   }
 
   // helper function below

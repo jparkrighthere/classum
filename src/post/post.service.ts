@@ -13,8 +13,6 @@ import { Role } from 'src/spaceRole/enum/spaceRole.enum';
 import { Space } from 'src/space/space.entity';
 import { UserSpace } from 'src/userSpace/userSpace.entity';
 import { UserSpaceRepository } from 'src/userSpace/userSpace.repository';
-import { Chat } from 'src/chat/chat.entity';
-import { ChatRepository } from 'src/chat/chat.repository';
 
 @Injectable()
 export class PostService {
@@ -22,7 +20,6 @@ export class PostService {
     private postRepository: PostRepository,
     private spaceService: SpaceService,
     private userSpaceRepository: UserSpaceRepository,
-    private chatRepository: ChatRepository,
   ) {}
 
   async getAllPosts(space_id: number, user: User): Promise<PostEntity[]> {
@@ -35,9 +32,12 @@ export class PostService {
 
   //TODO: Implement getMyPosts
   async getMyPosts(user: User): Promise<PostEntity[]> {
+    console.log(user);
     const myPosts = await this.postRepository.find({
       where: { author: user },
+      relations: ['author', 'post'],
     });
+    console.log(myPosts);
     return myPosts;
   }
 
@@ -66,8 +66,11 @@ export class PostService {
     title: string;
     content: string;
     attachment: string;
-    chats: Chat[];
-    author?: Partial<User>;
+    author?: {
+      last_name: string;
+      first_name: string;
+      profile: string;
+    };
   }> {
     // check if space exists
     const space = await this.validateSpace(space_id);
@@ -89,20 +92,18 @@ export class PostService {
         title: post.title,
         content: post.content,
         attachment: post.attachment,
-        chats: post.chats,
       };
     } else {
       return {
         title: post.title,
         content: post.content,
         attachment: post.attachment,
-        chats: post.chats,
         // make to return partial author info
         author: {
           last_name: post.author.last_name,
           first_name: post.author.first_name,
           profile: post.author.profile,
-        } as User,
+        },
       };
     }
   }

@@ -33,9 +33,9 @@ export class SpaceController {
   }
 
   @Get()
-  async getSpaces(@GetUser() user: User): Promise<string[]> {
-    const spaceInfo = await this.spaceService.getSpaces(user);
-    return spaceInfo.map((space) => space.name);
+  async getMySpaces(@GetUser() user: User): Promise<string[]> {
+    const mySpace = await this.spaceService.getMySpaces(user);
+    return mySpace.map((space) => space.name);
   }
 
   @Post('/join')

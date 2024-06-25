@@ -19,15 +19,27 @@ export class User {
   @Column()
   first_name: string;
 
-  @Column()
+  @Column({ default: null })
   profile: string;
 
-  @Column({ default: true })
-  isActive: boolean;
-
-  @OneToMany(() => UserSpace, (userSpace) => userSpace.user)
+  @OneToMany(() => UserSpace, (userSpace) => userSpace.user, {
+    eager: true,
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
+  })
   userSpaces: UserSpace[];
 
-  @OneToMany(() => Post, (post) => post.author)
+  @OneToMany(() => Post, (post) => post.author, {
+    eager: true,
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
+  })
   posts: Post[];
+
+  @OneToMany(() => Post, (post) => post.author, {
+    eager: true,
+    cascade: ['insert', 'update', 'remove', 'soft-remove'],
+    onDelete: 'CASCADE',
+  })
+  chats: Post[];
 }

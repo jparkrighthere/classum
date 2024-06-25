@@ -25,7 +25,7 @@ export class Space {
     cascade: ['insert', 'update', 'remove', 'soft-remove'],
     onDelete: 'CASCADE',
   })
-  spaceRoles: SpaceRole[]; // 공간 내의 역할들
+  spaceRoles: SpaceRole[];
 
   @OneToMany(() => UserSpace, (userSpace) => userSpace.space, {
     eager: true,
@@ -41,6 +41,7 @@ export class Space {
   adminAccessCode: string;
 
   @OneToMany(() => Post, (post) => post.space, {
+    eager: true,
     cascade: ['insert', 'update', 'remove', 'soft-remove'],
     onDelete: 'CASCADE',
   })

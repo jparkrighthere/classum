@@ -14,6 +14,7 @@ import { PostService } from './post.service';
 import { User } from 'src/user/user.entity';
 import { GetUser } from 'src/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
+import { Chat } from 'src/chat/chat.entity';
 
 @Controller('post')
 @UseGuards(AuthGuard('jwt'))
@@ -25,7 +26,7 @@ export class PostController {
     @GetUser() user: User,
     @Param('space_id') space_id: number,
   ): Promise<string[]> {
-    const posts = await this.postService.getPosts(space_id, user);
+    const posts = await this.postService.getAllPosts(space_id, user);
     return posts.map((post) => post.title);
   }
 
@@ -58,14 +59,19 @@ export class PostController {
       title: string;
       content: string;
       attachment: string;
-      author?: {
-        last_name: string;
-        first_name: string;
-        profile: string;
-      };
+      chats: Chat[];
+      author?: Partial<User>;
     }>
   > {
-    const post = await this.postService.getPost(post_id, space_id, user);
+    const post = await this.postService.getPost(space_id, post_id, user);
     return post;
+  }
+
+  @Get('/popular/:space_id')
+  async getPopularPosts(
+    @Param('space_id') space_id: number,
+  ): Promise<string[]> {
+    const topFivePosts = await this.postService.getPopularPosts(space_id);
+    return topFivePosts.map((post) => post.title);
   }
 }

@@ -167,34 +167,40 @@ export class SpaceRoleService {
   ): Promise<void> {
     // check if space exists
     const space = await this.validateSpace(space_id);
+
     // check if the user is in the space
     const userSpace = await this.validateUserSpace(user_id, space_id);
+    if (!userSpace) {
+      throw new BadRequestException('User is not in the space');
+    }
     const userSpaceRole = userSpace.spaceRole;
+
     // check if the owner is in the space
     const ownerUserSpace = await this.validateUserSpace(user.user_id, space_id);
+    if (!ownerUserSpace) {
+      throw new BadRequestException('Owner is not in the space');
+    }
     const ownerSpaceRole = ownerUserSpace.spaceRole;
     if (ownerSpaceRole.role !== Role.OWNER) {
       throw new BadRequestException(
         'Current user is not the owner of this space',
       );
     }
-    // assign owner role
-    userSpaceRole.role = Role.OWNER;
-    await this.userSpaceRepository.softRemove(ownerUserSpace);
     const chosenUser = await this.userService.findUserById(user_id);
     await this.userSpaceService.connectUserSpace(
       chosenUser,
       space,
-      userSpaceRole,
+      ownerSpaceRole,
     );
-    // former owner becomes admin
-    ownerSpaceRole.role = Role.ADMIN;
     const ownerUser = await this.userService.findUserById(user.user_id);
     await this.userSpaceService.connectUserSpace(
       ownerUser,
       space,
-      ownerSpaceRole,
+      userSpaceRole,
     );
+    // Delete the old user space roles
+    await this.userSpaceRepository.softRemove(userSpace);
+    await this.userSpaceRepository.softRemove(ownerUserSpace);
   }
 
   async getSpaceRoles(space_id: number): Promise<SpaceRole[]> {

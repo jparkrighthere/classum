@@ -45,4 +45,27 @@ export class PostRepository extends Repository<PostEntity> {
     }
     return post;
   }
+
+  async findPopularPosts(space_id: number): Promise<PostEntity[]> {
+    const posts = await this.find({
+      where: { space: { space_id } },
+      relations: ['chats', 'author'],
+    });
+    const popularPosts = posts
+      .map((post) => ({
+        post,
+        commentCount: post.chats.length,
+        uniqueCommenters: new Set(post.chats.map((chat) => chat.author.user_id))
+          .size,
+      }))
+      .sort((a, b) => {
+        if (a.commentCount !== b.commentCount) {
+          return b.commentCount - a.commentCount;
+        }
+        return b.uniqueCommenters - a.uniqueCommenters;
+      })
+      .slice(0, 5)
+      .map((item) => item.post);
+    return popularPosts;
+  }
 }

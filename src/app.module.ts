@@ -22,6 +22,7 @@ import { PostModule } from './post/post.module';
 import { ChatController } from './chat/chat.controller';
 import { ChatModule } from './chat/chat.module';
 import { Post } from './post/post.entity';
+import { Chat } from './chat/chat.entity';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { Post } from './post/post.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Space, SpaceRole, UserSpace, Post],
+      entities: [User, Space, SpaceRole, UserSpace, Post, Chat],
       synchronize: process.env.DB_SYNC === 'true',
     }),
     UserModule,

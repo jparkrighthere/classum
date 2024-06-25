@@ -84,4 +84,13 @@ export class SpaceRoleController {
       role: spaceRole.role,
     };
   }
+
+  @Post('/:space_id/owner/:user_id')
+  async assignOwner(
+    @Param('space_id') space_id: number,
+    @Param('user_id') user_id: number,
+    @GetUser() user: User,
+  ): Promise<void> {
+    await this.spaceRoleService.assignOwnerRole(user_id, space_id, user);
+  }
 }

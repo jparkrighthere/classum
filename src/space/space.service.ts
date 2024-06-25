@@ -69,12 +69,17 @@ export class SpaceService {
     return result;
   }
 
-  async getSpaces(user: User): Promise<Space[]> {
-    return await this.spaceRepository.findSpaces(user);
+  async getMySpaces(user: User): Promise<Space[]> {
+    const mySpaces = await this.spaceRepository.findSpaces(user);
+    return mySpaces;
   }
 
   async getSpace(space_id: number): Promise<Space> {
-    return await this.spaceRepository.getSpaceById(space_id);
+    const space = await this.spaceRepository.getSpaceById(space_id);
+    if (!space) {
+      throw new NotFoundException('Space not found');
+    }
+    return space;
   }
 
   async joinSpace(joinSpaceDto: JoinSpaceDto, user: User): Promise<UserSpace> {

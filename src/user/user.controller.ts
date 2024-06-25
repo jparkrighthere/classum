@@ -14,11 +14,17 @@ import { User } from './user.entity';
 import { GetUser } from 'src/user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ChatService } from 'src/chat/chat.service';
+import { PostService } from 'src/post/post.service';
 
 @Controller('user')
 @UseGuards(AuthGuard('jwt'))
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private postService: PostService,
+    private chatService: ChatService,
+  ) {}
 
   @Get()
   async getProfile(@GetUser() user: User): Promise<User> {
@@ -37,7 +43,7 @@ export class UserController {
     return await this.userService.updateProfile(user.user_id, updateUserDto);
   }
 
-  @Get('profile/:user_id')
+  @Get('/:user_id')
   async getUserProfile(
     @Param('user_id') user_id: number,
   ): Promise<Partial<User>> {
@@ -48,5 +54,17 @@ export class UserController {
       profile: user.profile,
     };
     return safeUser;
+  }
+
+  @Get('/searchPosts')
+  async searchUserPosts(@GetUser() user: User): Promise<string[]> {
+    const userPosts = await this.postService.getMyPosts(user);
+    return userPosts.map((post) => post.title);
+  }
+
+  @Get('/searchChats')
+  async searchUserChats(@GetUser() user: User): Promise<string[]> {
+    const userChats = await this.chatService.getMyChats(user);
+    return userChats.map((chat) => chat.content);
   }
 }

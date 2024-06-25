@@ -19,7 +19,7 @@ export class CreatePostDto {
 
   @IsString()
   @IsOptional()
-  attachment?: string;
+  attachment: string;
 
   @IsBoolean()
   @IsNotEmpty()

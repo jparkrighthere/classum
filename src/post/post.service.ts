@@ -13,6 +13,8 @@ import { Role } from 'src/spaceRole/enum/spaceRole.enum';
 import { Space } from 'src/space/space.entity';
 import { UserSpace } from 'src/userSpace/userSpace.entity';
 import { UserSpaceRepository } from 'src/userSpace/userSpace.repository';
+import { Chat } from 'src/chat/chat.entity';
+import { ChatRepository } from 'src/chat/chat.repository';
 
 @Injectable()
 export class PostService {
@@ -20,9 +22,10 @@ export class PostService {
     private postRepository: PostRepository,
     private spaceService: SpaceService,
     private userSpaceRepository: UserSpaceRepository,
+    private chatRepository: ChatRepository,
   ) {}
 
-  async getPosts(space_id: number, user: User): Promise<PostEntity[]> {
+  async getAllPosts(space_id: number, user: User): Promise<PostEntity[]> {
     // check if space exists
     await this.validateSpace(space_id);
     // check if user has access to space
@@ -30,19 +33,41 @@ export class PostService {
     return await this.postRepository.findPosts(space_id);
   }
 
-  async getPost(
-    post_id: number,
+  //TODO: Implement getMyPosts
+  async getMyPosts(user: User): Promise<PostEntity[]> {
+    const myPosts = await this.postRepository.find({
+      where: { author: user },
+    });
+    return myPosts;
+  }
+
+  async getPostEntity(
     space_id: number,
+    post_id: number,
+    user: User,
+  ): Promise<PostEntity> {
+    const space = await this.validateSpace(space_id);
+    // check if user has access to space
+    await this.validateUserSpace(user.user_id, space_id);
+    // check if post exists
+    const post = await this.postRepository.findPostById(post_id, space);
+    if (!post) {
+      throw new NotFoundException('Post does not exist');
+    }
+    return post;
+  }
+
+  // Made for specific return type
+  async getPost(
+    space_id: number,
+    post_id: number,
     user: User,
   ): Promise<{
     title: string;
     content: string;
     attachment: string;
-    author?: {
-      last_name: string;
-      first_name: string;
-      profile: string;
-    };
+    chats: Chat[];
+    author?: Partial<User>;
   }> {
     // check if space exists
     const space = await this.validateSpace(space_id);
@@ -64,18 +89,20 @@ export class PostService {
         title: post.title,
         content: post.content,
         attachment: post.attachment,
+        chats: post.chats,
       };
     } else {
       return {
         title: post.title,
         content: post.content,
         attachment: post.attachment,
+        chats: post.chats,
         // make to return partial author info
         author: {
           last_name: post.author.last_name,
           first_name: post.author.first_name,
           profile: post.author.profile,
-        },
+        } as User,
       };
     }
   }
@@ -143,6 +170,12 @@ export class PostService {
       );
     }
     await this.postRepository.softRemove(post);
+  }
+
+  async getPopularPosts(space_id: number): Promise<PostEntity[]> {
+    // check if space exists
+    await this.validateSpace(space_id);
+    return await this.postRepository.findPopularPosts(space_id);
   }
 
   // helper functions below

@@ -26,36 +26,28 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+
 ## Installation
 
 ```bash
 $ npm install
 ```
 
+## 환경에 따른 DB 스키마 명
+```
+Production 환경: NODE_ENV=development
+Development 환경: NODE_ENV=production
+```
+> 사용할 사용자명과 비밀번호를 .env.development 또는 .env.production 파일에 기입해주세요
+
 ## Running the app
 
 ```bash
 # development
-$ npm run start
-
-# watch mode
 $ npm run start:dev
 
 # production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+$ npm run start
 ```
 
 ## Support

@@ -1,7 +1,0 @@
-db:
-  database: 'dev'
-  synchronize: true
-  logging: false
-
-app:
-  logging: true

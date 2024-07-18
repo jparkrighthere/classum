@@ -50,7 +50,7 @@ $ npm install
 Production 환경: NODE_ENV=development
 Development 환경: NODE_ENV=production
 ```
-> 사용할 사용자명과 비밀번호를 .env.development 또는 .env.production 파일에 기입해주세요
+> 사용할 사용자명과 비밀번호를 .env.development 또는 .env.production 파일에 기입
 
 ### .env.production
 ```
@@ -60,7 +60,7 @@ DB_PORT=3306 //필요 시 변경
 DB_NAME=production-dbname // 변경
 DB_USERNAME=production-username // 변경
 DB_PASSWORD=production-password // 변경
-DB_SYNC=false // 변경 (false 시, app.module.ts에서도 수정 필요)
+DB_SYNC=false // 변경 
 ```
 
 ## Running the app
@@ -74,10 +74,4 @@ $ npm run start
 ```
 
 ## API 리스트
-테스트 시 참고해주세요.[API LIST](https://documenter.getpostman.com/view/31370456/2sA3XY6dHG)
-
-## Contact
-혹시라도 질문이 있으시거나 오류 발생 시 언제든 연락주세요! 
-> fishbox0923@gmail.com
-
-> 010-2516-7220
+테스트 시 참고.[API LIST](https://documenter.getpostman.com/view/31370456/2sA3XY6dHG)
